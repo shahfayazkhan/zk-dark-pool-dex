@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+:root {
+  --background: #030303;
+  --foreground: #f3f4f6;
+  --color-primary: #10b981; /* Emerald */
+  --color-secondary: #06b6d4; /* Cyan */
+  --color-dark: #0f172a; /* Slate 900 */
+}
+
+body {
+  background: radial-gradient(circle at 50% 0%, #0c181a 0%, #030303 70%);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Glassmorphism panel styling */
+.glass-panel {
+  background: rgba(17, 17, 24, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-panel:hover {
+  border-color: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+}
+
+/* Glowing animations */
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.15;
+    box-shadow: 0 0 15px 2px rgba(16, 185, 129, 0.1);
+  }
+  50% {
+    opacity: 0.35;
+    box-shadow: 0 0 25px 5px rgba(6, 182, 212, 0.2);
+  }
+}
+
+.glowing-bg {
+  animation: glow-pulse 6s infinite ease-in-out;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}

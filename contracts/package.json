@@ -1,0 +1,22 @@
+{
+  "name": "zk-dark-pool-dex-contracts",
+  "version": "1.0.0",
+  "description": "Contracts and ZK Circuits for ZK-Dark Pool DEX",
+  "main": "index.js",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "deploy:local": "npx hardhat run scripts/deploy.js --network localhost",
+    "deploy:hardhat": "npx hardhat run scripts/deploy.js --network hardhat"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.1",
+    "circomlibjs": "^0.1.7",
+    "dotenv": "^16.4.1",
+    "snarkjs": "^0.7.3"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.19.4"
+  }
+}
