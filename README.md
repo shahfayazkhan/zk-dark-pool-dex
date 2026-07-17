@@ -2,34 +2,61 @@
 
 A portfolio-grade, decentralized **Dark Pool Exchange** that enables privacy-preserving token trading using Zero-Knowledge Proofs (ZKPs). Users can deposit assets, submit cryptographically masked order commitments, match orders off-chain via a high-concurrency matching engine, generate ZK proofs validating the match details without exposing private parameters, and settle trades on-chain.
 
+## Design Preview
+
+![ZK-Dark Pool DEX Interface](frontend/public/design_screenshot.png)
+
 ---
 
 ## Technical Stack & Architecture
 
 ```mermaid
 flowchart TD
-    subgraph Frontend [Next.js App Client]
-        A[Injected Wallet / Wagmi] -->|1. Deposit Base & Quote Assets| B[Private Shielded Balance]
-        C[Place Limit Order] -->|2. Hash Order with Poseidon| D[Submit Order Commitment]
-        D -->|3. Register Commitment On-Chain| E[DarkPool.sol]
-        D -->|4. Send Plaintext details securely| F[Go Matching Engine]
+    classDef client fill:#10b981,stroke:#047857,color:#fff,stroke-width:2px;
+    classDef engine fill:#06b6d4,stroke:#0891b2,color:#fff,stroke-width:2px;
+    classDef zk fill:#8b5cf6,stroke:#6d28d9,color:#fff,stroke-width:2px;
+    classDef chain fill:#f59e0b,stroke:#d97706,color:#fff,stroke-width:2px;
+
+    subgraph Client ["Next.js Frontend Client (dApp)"]
+        A["Injected Wallet (Wagmi/Viem)"]
+        B["Shielded Balances Manager"]
+        C["Poseidon Hash Generator"]
     end
 
-    subgraph Backend [Go Matchmaker]
-        F -->|5. Match overlaps: Buy Price >= Sell Price| G[Create Match Event]
-        G -->|6. Broadcast match event via WS| Frontend
+    subgraph Matchmaker ["Go Matching Engine (Backend)"]
+        F["Order Book Manager (WebSocket Hub)"]
+        G["Matcher Engine (Price/Time Priority)"]
     end
 
-    subgraph ZKProver [ZK Prover Node]
-        Frontend -->|7. Generate Witness & Constraints| H[Circom Circuit]
-        H -->|8. Generate Groth16 Snark Proof| I[SnarkJS Prover]
-    *   I -->|9. Submit Proof & Match Parameters| E
+    subgraph Prover ["Local Prover Node"]
+        H["Circom Circuit (match.circom)"]
+        I["SnarkJS Prover (Groth16 WebAssembly)"]
     end
 
-    subgraph Blockchain [Hardhat Local Network]
-        E -->|10. Execute match verifications| J[Verifier.sol]
-        J -->|11. Verify Proof & Update Shielded Balances| E
+    subgraph Ledger ["Hardhat Local Network (Blockchain)"]
+        E["DarkPool.sol (Shielded Registry)"]
+        J["Verifier.sol (Groth16 Verifier)"]
     end
+
+    %% Flow arrows
+    A -->|1. Approve & Deposit Assets| E
+    E -->|2. Mint Shielded Balance| B
+    B -->|3. Construct Private Order| C
+    C -->|4. Register Poseidon Commitments| E
+    C -->|5. Relay Plaintext Order Details (WS)| F
+    F -->|6. Queue in Sort Book| G
+    G -->|7. Broadcast Match Event (WS)| B
+    B -->|8. Generate Witness & Constraints| H
+    H -->|9. Compute Groth16 Snark Proof| I
+    I -->|10. Submit Proof & Public Match Parameters| E
+    E -->|11. Execute Verification Call| J
+    J -->|12. Valid Proof confirmation| E
+    E -->|13. Atomically Update Shielded Balances| E
+
+    class A,B,C client;
+    class F,G engine;
+    class H,I zk;
+    class E,J chain;
 ```
 
 ### Components
